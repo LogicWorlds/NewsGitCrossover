@@ -1,13 +1,28 @@
 <?php
 $key = 'superSecretKey123';
 $prefix = '[GitHub] ';
-if ($_GET['key'] != $key)
-  die('Key mismatch!');
 
 include('db.php');
 
+$payload = file_get_contents('php://input');
+
+// Проверка сигнатуры
+$signature = explode('=', $_SERVER['HTTP_X_HUB_SIGNATURE']);
+$algos = hash_algos();
+list($algo, $hash) = $signature;
+if (!in_array($algo, $algos)) {
+	http_response_code(400);
+	die("Unknown hashing algo: {$algo}");
+}
+
+$expectedHash = hash_hmac($algo, $payload, $key);
+if ($expectedHash !== $hash) {
+	http_response_code(403);
+	die('Invalid signature');
+}
+
 // Получаем массив из payload
-$payload = json_decode($_REQUEST['payload'], true);
+$payload = json_decode($payload, true);
 
 // Извлекаем из него сообщения об изменениях
 $mesages = [];
