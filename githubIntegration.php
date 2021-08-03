@@ -33,11 +33,11 @@ foreach ($payload['commits'] as $commit) {
 // Формируем новость из полученных сообщений
 $new = "";
 foreach ($messages as $message) {
-  $new .= "{$prefix}{$message}<br>";
+  $new .= "{$prefix}{$message}\n";
 }
 
-// Отрезаем последний <br>
-$new = substr($new, 0, strlen($new)-4);
+// Отрезаем последний (/n)
+$new = substr($new, 0, strlen($new)-1);
 
 // Добавляем новость в базу
 $newss = str_replace("\n", "<br>",  $new);
